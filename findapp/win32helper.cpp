@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "precomp.h"
 
 Win32Helper::Win32Helper()
 {
@@ -30,9 +30,9 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
                 return NULL;
         }
 
-        NTSTATUS status;
+        NTSTATUS                  status;
         PROCESS_BASIC_INFORMATION basic_info;
-        PVOID peb32_address;
+        PVOID                     peb32_address;
 
         if (!is_wow64)
                 status = (*_NtQueryInformationProcess)(
@@ -54,21 +54,22 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
                 return NULL;
         }
 
-        PEB peb;
-        BOOL bool_result;
+        PEB    peb;
+        BOOL   bool_result;
         size_t bytes_read;
 
-        #pragma pack(push, 1)
+#pragma pack(push, 1)
         typedef __int32 POINTER32;
-        struct PEB32 {
-                BYTE Reserved1[2];
-                BYTE BeingDebugged;
-                BYTE Reserved2[1];
+        struct PEB32
+        {
+                BYTE      Reserved1[2];
+                BYTE      BeingDebugged;
+                BYTE      Reserved2[1];
                 POINTER32 Reserved3[2];
                 POINTER32 Ldr;
                 POINTER32 ProcessParameters;
         } peb32;
-        #pragma pack(pop)
+#pragma pack(pop)
 
         if (!is_wow64)
                 bool_result = ReadProcessMemory(
@@ -94,19 +95,21 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
 
         RTL_USER_PROCESS_PARAMETERS process_parameters;
 
-        #pragma pack(push, 1)
-        struct UNICODE32 {
-                USHORT Length;
-                USHORT MaximumLength;
+#pragma pack(push, 1)
+        struct UNICODE32
+        {
+                USHORT    Length;
+                USHORT    MaximumLength;
                 POINTER32 Buffer;
         };
-        struct RTL_USER_PROCESS_PARAMETERS32 {
-                BYTE  Reserved1[16];
+        struct RTL_USER_PROCESS_PARAMETERS32
+        {
+                BYTE      Reserved1[16];
                 POINTER32 Reserved2[10];
                 UNICODE32 ImagePathName;
                 UNICODE32 CommandLine;
         } process_parameters32;
-        #pragma pack(pop)
+#pragma pack(pop)
 
         if (!is_wow64)
                 bool_result = ReadProcessMemory(
@@ -147,7 +150,7 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
         if (bool_result == 0)
         {
                 printf("ReadProcessMemory(CmdLine) failed with 0x%x\n", GetLastError());
-                printf("Expect size: 0x%zx, actual size: 0x%zx\n", process_parameters.CommandLine.Length, bytes_read);
+                printf("Expect size: 0x%x, actual size: 0x%zx\n", process_parameters.CommandLine.Length, bytes_read);
                 return NULL;
         }
 
