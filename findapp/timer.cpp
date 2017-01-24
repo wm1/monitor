@@ -60,6 +60,13 @@ Timer::Timer(
                         printf("RegisterPowerSettingNotification failed with 0x%x\n", GetLastError());
                         return;
                 }
+
+        BOOL bool_result = WTSRegisterSessionNotification(hwnd, NOTIFY_FOR_THIS_SESSION);
+        if (!bool_result)
+        {
+                printf("RegisterPowerSettingNotification failed with 0x%x\n", GetLastError());
+                return;
+        }
 }
 
 void Timer::PowerEvent(POWERBROADCAST_SETTING* setting)
@@ -85,6 +92,15 @@ void Timer::PowerEvent(POWERBROADCAST_SETTING* setting)
                 else if (!running && data == 1)
                         Start();
         }
+}
+
+void Timer::LogonEvent(WPARAM param)
+{
+        // WM_WTSSESSION_CHANGE message
+        if (running && param == WTS_SESSION_LOCK)
+                Stop();
+        else if (!running && param == WTS_SESSION_UNLOCK)
+                Start();
 }
 
 void Timer::Start()

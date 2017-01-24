@@ -15,3 +15,4 @@ add_executable(
     )
 
 target_link_libraries(${TARGET} kernel32)
+target_link_libraries(${TARGET} WtsApi32)

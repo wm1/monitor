@@ -5,6 +5,7 @@ public:
         typedef void(type_TimerCallback)(PVOID);
         Timer(HWND, int seconds, type_TimerCallback*, PVOID);
         void        PowerEvent(POWERBROADCAST_SETTING*);
+        void        LogonEvent(WPARAM);
         static void OutputTimeStamp();
 
 private:

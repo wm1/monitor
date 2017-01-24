@@ -17,6 +17,14 @@ LRESULT CALLBACK WndProc(
                 }
                 break;
 
+        case WM_WTSSESSION_CHANGE:
+        {
+                Timer* timer = (Timer*)GetWindowLongPtr(hWnd, 0);
+                if (timer != NULL)
+                        timer->LogonEvent(wParam);
+        }
+        break;
+
         case WM_DESTROY: //WM_CLOSE:
                 PostQuitMessage(0);
                 break;
