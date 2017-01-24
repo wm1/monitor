@@ -12,13 +12,11 @@ class Win32Helper
 {
 public:
         Win32Helper();
-        PCWSTR GetProcessCommandLine(HANDLE process_handle);
+        bool GetProcessCommandLine(HANDLE process_handle, _Out_ PWSTR, size_t);
 
 private:
         bool                           valid;
         bool                           InitializeDelayLoading();
         HMODULE                        ntdll;
         type_NtQueryInformationProcess _NtQueryInformationProcess;
-
-        PCWSTR GetProcessCommandLineWow64(HANDLE process_handle);
 };

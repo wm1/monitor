@@ -21,13 +21,13 @@ bool Win32Helper::InitializeDelayLoading()
 #error To simplify the code, we only want to build for x64
 #endif
 
-PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
+bool Win32Helper::GetProcessCommandLine(HANDLE process_handle, _Out_ PWSTR command_line_buffer, size_t buffer_size_in_wchar)
 {
         BOOL is_wow64;
         if (!IsWow64Process(process_handle, &is_wow64))
         {
                 printf("IsWow64Process failed with 0x%x\n", GetLastError());
-                return NULL;
+                return false;
         }
 
         NTSTATUS                  status;
@@ -51,7 +51,7 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
         if (!NT_SUCCESS(status))
         {
                 printf("NtQueryInformationProcess failed with 0x%x\n", status);
-                return NULL;
+                return false;
         }
 
         PEB    peb;
@@ -71,26 +71,29 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
         } peb32;
 #pragma pack(pop)
 
-        if (!is_wow64)
-                bool_result = ReadProcessMemory(
-                        process_handle,
-                        basic_info.PebBaseAddress,
-                        &peb,
-                        sizeof(peb),
-                        &bytes_read);
-        else
-                bool_result = ReadProcessMemory(
-                        process_handle,
-                        peb32_address,
-                        &peb32,
-                        sizeof(peb32),
-                        &bytes_read);
+        PVOID  address;
+        PVOID  buffer;
+        size_t size;
 
+        if (!is_wow64)
+        {
+                address = basic_info.PebBaseAddress;
+                buffer  = &peb;
+                size    = sizeof(peb);
+        }
+        else
+        {
+                address = peb32_address;
+                buffer  = &peb32;
+                size    = sizeof(peb32);
+        }
+
+        bool_result = ReadProcessMemory(process_handle, address, buffer, size, &bytes_read);
         if (bool_result == 0)
         {
                 printf("ReadProcessMemory(Peb) failed with 0x%x\n", GetLastError());
-                printf("Expect size: 0x%zx, actual size: 0x%zx\n", sizeof(peb), bytes_read);
-                return NULL;
+                printf("Expect size: 0x%zx, actual size: 0x%zx\n", size, bytes_read);
+                return false;
         }
 
         RTL_USER_PROCESS_PARAMETERS process_parameters;
@@ -112,48 +115,51 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
 #pragma pack(pop)
 
         if (!is_wow64)
-                bool_result = ReadProcessMemory(
-                        process_handle,
-                        peb.ProcessParameters,
-                        &process_parameters,
-                        sizeof(process_parameters),
-                        &bytes_read);
-        else
-                bool_result = ReadProcessMemory(
-                        process_handle,
-                        (PVOID)(ULONG_PTR)peb32.ProcessParameters,
-                        &process_parameters32,
-                        sizeof(process_parameters32),
-                        &bytes_read);
-        if (bool_result == 0)
         {
-                printf("ReadProcessMemory(ProcessParameters) failed with 0x%x\n", GetLastError());
-                printf("Expect size: 0x%zx, actual size: 0x%zx\n", sizeof(process_parameters), bytes_read);
-                return NULL;
+                address = peb.ProcessParameters;
+                buffer  = &process_parameters;
+                size    = sizeof(process_parameters);
+        }
+        else
+        {
+                address = (PVOID)(ULONG_PTR)peb32.ProcessParameters;
+                buffer  = &process_parameters32;
+                size    = sizeof(process_parameters32);
         }
 
-        static WCHAR buffer[MAX_PATH];
+        bool_result = ReadProcessMemory(process_handle, address, buffer, size, &bytes_read);
+        if (bool_result == 0)
+        {
+                printf("ReadProcessMemory(Peb) failed with 0x%x\n", GetLastError());
+                printf("Expect size: 0x%zx, actual size: 0x%zx\n", size, bytes_read);
+                return false;
+        }
+
         if (!is_wow64)
-                bool_result = ReadProcessMemory(
-                        process_handle,
-                        process_parameters.CommandLine.Buffer,
-                        buffer,
-                        process_parameters.CommandLine.Length,
-                        &bytes_read);
+        {
+                address = process_parameters.CommandLine.Buffer;
+                buffer  = command_line_buffer;
+                size    = process_parameters.CommandLine.Length;
+        }
         else
-                bool_result = ReadProcessMemory(
-                        process_handle,
-                        (PVOID)(ULONG_PTR)process_parameters32.CommandLine.Buffer,
-                        buffer,
-                        process_parameters32.CommandLine.Length,
-                        &bytes_read);
+        {
+                address = (PVOID)(ULONG_PTR)process_parameters32.CommandLine.Buffer;
+                buffer  = command_line_buffer;
+                size    = process_parameters32.CommandLine.Length;
+        }
+
+        buffer_size_in_wchar *= 2;                       // convert buffer size in wchar to byte
+        if (size > buffer_size_in_wchar - sizeof(L'\0')) // leave room for '\0'
+                size = buffer_size_in_wchar - sizeof(L'\0');
+
+        bool_result = ReadProcessMemory(process_handle, address, buffer, size, &bytes_read);
         if (bool_result == 0)
         {
                 printf("ReadProcessMemory(CmdLine) failed with 0x%x\n", GetLastError());
-                printf("Expect size: 0x%x, actual size: 0x%zx\n", process_parameters.CommandLine.Length, bytes_read);
-                return NULL;
+                printf("Expect size: 0x%zx, actual size: 0x%zx\n", size, bytes_read);
+                return false;
         }
-        buffer[bytes_read / 2] = L'\0';
+        command_line_buffer[bytes_read / 2] = L'\0';
 
-        return buffer;
+        return true;
 }

@@ -19,8 +19,8 @@ void FindApp::TimerCallback()
         if (process_id == 0)
                 return;
 
-        PCWSTR command_line = GetProcessCommandLine(process_id);
-        if (command_line != NULL)
+        bool result = GetProcessCommandLine(process_id);
+        if (result)
                 printf("CmdLine: %S\n", command_line);
 }
 
@@ -53,11 +53,11 @@ DWORD FindApp::GetForegroundWindowProcessId()
         if (window_handle == NULL)
                 return 0;
 
-        WCHAR buffer[MAX_PATH];
-        int   result = GetWindowText(window_handle, buffer, sizeof(buffer) / sizeof(buffer[0]));
+        window_title[0] = L'\0';
+        int result      = GetWindowText(window_handle, window_title, sizeof(window_title) / sizeof(window_title[0]));
         if (result != 0)
         {
-                printf("Title:   %S", buffer);
+                printf("Title:   %S", window_title);
                 printf("\n"); // unicode output is not working 100%. move endline out so that it wont get eaten
         }
         else
@@ -72,17 +72,17 @@ DWORD FindApp::GetForegroundWindowProcessId()
         return process_id;
 }
 
-PCWSTR FindApp::GetProcessCommandLine(DWORD process_id)
+bool FindApp::GetProcessCommandLine(DWORD process_id)
 {
-        PCWSTR command_line   = NULL;
+        bool   result         = false;
         HANDLE process_handle = OpenProcess(
                 PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
                 NULL,
                 process_id);
         if (process_handle != NULL)
         {
-                command_line = helper.GetProcessCommandLine(process_handle);
+                result = helper.GetProcessCommandLine(process_handle, command_line, sizeof(command_line) / sizeof(command_line[0]));
                 CloseHandle(process_handle);
         }
-        return command_line;
+        return result;
 }
