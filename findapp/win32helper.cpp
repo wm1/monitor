@@ -153,6 +153,7 @@ PCWSTR Win32Helper::GetProcessCommandLine(HANDLE process_handle)
                 printf("Expect size: 0x%x, actual size: 0x%zx\n", process_parameters.CommandLine.Length, bytes_read);
                 return NULL;
         }
+        buffer[bytes_read / 2] = L'\0';
 
         return buffer;
 }

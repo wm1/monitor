@@ -4,6 +4,7 @@ add_definitions(-DPROJ=${TARGET})
 
 set(SOURCES
     findapp.cpp
+    timer.cpp
     win32helper.cpp)
 
 add_executable(
