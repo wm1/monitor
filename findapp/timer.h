@@ -3,18 +3,23 @@ class Timer
 {
 public:
         typedef void(type_TimerCallback)(PVOID);
-        Timer(int seconds, type_TimerCallback*, PVOID);
+        Timer(HWND, int seconds, type_TimerCallback*, PVOID);
+        void PowerEvent(POWERBROADCAST_SETTING*);
+        static void OutputTimeStamp();
 
 private:
+        HWND                hwnd;
         int                 seconds;
         type_TimerCallback* callback;
         PVOID               context;
         HANDLE              timer_handle;
+        bool                running;
 
         static void CALLBACK ApcRoutine(PVOID lpArg, DWORD, DWORD);
         static void __cdecl TimerThread(PVOID);
         void TimerThread();
-        void StartTimer();
+        void Start();
+        void Stop();
 };
 
 #define SECONDS_TO_MILLISECOND(x) ((x)*1000)                   // 1 ms = 10e-3 s

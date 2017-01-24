@@ -8,14 +8,23 @@ LRESULT CALLBACK WndProc(
 {
         switch (uMsg)
         {
+        case WM_POWERBROADCAST:
+                if (wParam == PBT_POWERSETTINGCHANGE)
+                {
+                        Timer* timer = (Timer*)GetWindowLongPtr(hWnd, 0);
+                        if (timer != NULL && lParam != NULL)
+                                timer->PowerEvent((POWERBROADCAST_SETTING*)lParam);
+                }
+                break;
+
         case WM_DESTROY: //WM_CLOSE:
                 PostQuitMessage(0);
                 break;
 
         default:
-                return DefWindowProc(hWnd, uMsg, wParam, lParam);
+                break;
         }
-        return 0;
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 int CALLBACK WinMain(
@@ -29,15 +38,17 @@ int CALLBACK WinMain(
         wc.hInstance     = hInstance;
         wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
         wc.lpszClassName = L"{8677407E-01E9-4D3E-8BF5-F9082CE08AEB}";
+        wc.cbWndExtra    = sizeof(Timer*);
 
         if (!RegisterClass(&wc))
                 return 1;
 
-        if (!CreateWindow(wc.lpszClassName,
-                          L"Monitor",
-                          WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                          CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                          NULL, NULL, hInstance, NULL))
+        HWND hwnd = CreateWindow(wc.lpszClassName,
+                        L"Monitor",
+                        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        NULL, NULL, hInstance, NULL);
+        if (!hwnd)
                 return 1;
 
         // for debugging output
@@ -46,7 +57,7 @@ int CALLBACK WinMain(
         AllocConsole();
         freopen_s(&ignored, "CON", "w", stdout);
 
-        FindApp find;
+        FindApp find(hwnd);
 
         MSG msg;
         while (GetMessage(&msg, NULL, 0, 0) > 0)

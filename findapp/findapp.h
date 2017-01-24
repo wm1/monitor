@@ -1,7 +1,7 @@
 class FindApp
 {
 public:
-        FindApp();
+        FindApp(HWND);
 
 private:
         Win32Helper helper;

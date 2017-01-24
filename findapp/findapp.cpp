@@ -1,7 +1,7 @@
 #include "precomp.h"
 
-FindApp::FindApp()
-        : timer(5, TimerCallback, this)
+FindApp::FindApp(HWND hwnd)
+        : timer(hwnd, 5, TimerCallback, this)
 {
 }
 
@@ -13,9 +13,7 @@ void FindApp::TimerCallback(PVOID context)
 
 void FindApp::TimerCallback()
 {
-        SYSTEMTIME now;
-        GetLocalTime(&now);
-        printf("\n%02d:%02d:%02d\n", now.wHour, now.wMinute, now.wSecond);
+        timer.OutputTimeStamp();
 
         DWORD process_id = GetForegroundWindowProcessId();
         if (process_id == 0)

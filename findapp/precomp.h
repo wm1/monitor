@@ -1,5 +1,6 @@
 #include <Windows.h>
-#include <Winternl.h>
+#include <winnt.h>
+#include <winternl.h>
 #include <stdio.h>
 #include <process.h>
 
