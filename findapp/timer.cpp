@@ -69,6 +69,21 @@ Timer::Timer(
         }
 }
 
+void Timer::WndProc(UINT message, WPARAM wparam, LPARAM lparam)
+{
+        switch (message)
+        {
+        case WM_POWERBROADCAST:
+                if (wparam == PBT_POWERSETTINGCHANGE && lparam != NULL)
+                        PowerEvent((POWERBROADCAST_SETTING*)lparam);
+                break;
+
+        case WM_WTSSESSION_CHANGE:
+                LogonEvent(wparam);
+                break;
+        }
+}
+
 void Timer::PowerEvent(POWERBROADCAST_SETTING* setting)
 {
         if (setting->PowerSetting == GUID_SESSION_USER_PRESENCE)

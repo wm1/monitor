@@ -6,26 +6,13 @@ LRESULT CALLBACK WndProc(
         _In_ WPARAM wParam,
         _In_ LPARAM lParam)
 {
+        Timer* timer = (Timer*)GetWindowLongPtr(hWnd, 0);
+        if (timer != NULL)
+                timer->WndProc(uMsg, wParam, lParam);
+
         switch (uMsg)
         {
-        case WM_POWERBROADCAST:
-                if (wParam == PBT_POWERSETTINGCHANGE)
-                {
-                        Timer* timer = (Timer*)GetWindowLongPtr(hWnd, 0);
-                        if (timer != NULL && lParam != NULL)
-                                timer->PowerEvent((POWERBROADCAST_SETTING*)lParam);
-                }
-                break;
-
-        case WM_WTSSESSION_CHANGE:
-        {
-                Timer* timer = (Timer*)GetWindowLongPtr(hWnd, 0);
-                if (timer != NULL)
-                        timer->LogonEvent(wParam);
-        }
-        break;
-
-        case WM_DESTROY: //WM_CLOSE:
+        case WM_DESTROY:
                 PostQuitMessage(0);
                 break;
 

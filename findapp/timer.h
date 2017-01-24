@@ -4,8 +4,7 @@ class Timer
 public:
         typedef void(type_TimerCallback)(PVOID);
         Timer(HWND, int seconds, type_TimerCallback*, PVOID);
-        void        PowerEvent(POWERBROADCAST_SETTING*);
-        void        LogonEvent(WPARAM);
+        void        WndProc(UINT, WPARAM, LPARAM);
         static void OutputTimeStamp();
 
 private:
@@ -23,6 +22,8 @@ private:
         void StartForReal();
         void Start();
         void Stop();
+        void PowerEvent(POWERBROADCAST_SETTING*);
+        void LogonEvent(WPARAM);
 };
 
 #define SECONDS_TO_MILLISECOND(x) ((x)*1000)                   // 1 ms = 10e-3 s
