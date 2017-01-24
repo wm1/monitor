@@ -4,11 +4,13 @@ add_definitions(-DPROJ=${TARGET})
 
 set(SOURCES
     findapp.cpp
+    mainframe.cpp
     timer.cpp
     win32helper.cpp)
 
 add_executable(
     ${TARGET}
+    WIN32
     ${SOURCES}
     )
 

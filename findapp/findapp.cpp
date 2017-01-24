@@ -1,13 +1,5 @@
 #include "precomp.h"
 
-void wmain()
-{
-        FindApp find;
-
-        for (int i = 0; i < 100; i++)
-                SleepEx(INFINITE, TRUE);
-}
-
 FindApp::FindApp()
         : timer(5, TimerCallback, this)
 {
