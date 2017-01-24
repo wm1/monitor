@@ -26,6 +26,14 @@ Timer::Timer(
 
         printf("timer is setup to fire every %d seconds\n", seconds);
 
+        // create an auto-reset event with initial state = signaled
+        start_event = CreateEvent(NULL, FALSE, TRUE, NULL);
+        if (start_event == NULL)
+        {
+                printf("CreateEvent failed with 0x%x\n", GetLastError());
+                return;
+        }
+
         _beginthread(TimerThread, 0, this);
 
         SetLastError(0);
@@ -44,10 +52,10 @@ Timer::Timer(
                 GUID_SESSION_USER_PRESENCE,
                 GUID_SESSION_DISPLAY_STATUS,
         };
-        for (int i = 0; i < sizeof(power_settings)/sizeof(power_settings[0]); i++)
+        for (int i = 0; i < sizeof(power_settings) / sizeof(power_settings[0]); i++)
                 if (!RegisterPowerSettingNotification(hwnd,
-                                &power_settings[i],
-                                DEVICE_NOTIFY_WINDOW_HANDLE))
+                                                      &power_settings[i],
+                                                      DEVICE_NOTIFY_WINDOW_HANDLE))
                 {
                         printf("RegisterPowerSettingNotification failed with 0x%x\n", GetLastError());
                         return;
@@ -81,6 +89,11 @@ void Timer::PowerEvent(POWERBROADCAST_SETTING* setting)
 
 void Timer::Start()
 {
+        SetEvent(start_event);
+}
+
+void Timer::StartForReal()
+{
         LARGE_INTEGER due_time;
         due_time.QuadPart = -1; // trigger immediately
 
@@ -102,7 +115,7 @@ void Timer::Start()
 
 void Timer::Stop()
 {
-        if (CancelWaitableTimer(timer_handle) ==0)
+        if (CancelWaitableTimer(timer_handle) == 0)
         {
                 printf("CancelWaitableTimer failed with 0x%x", GetLastError());
                 return;
@@ -127,10 +140,14 @@ void __cdecl Timer::TimerThread(PVOID _context)
 
 void Timer::TimerThread()
 {
-        Start();
         while (1)
         {
-                SleepEx(INFINITE, TRUE); // put the thread into alertable state
+                // put the thread into alertable state
+                //
+                DWORD result = WaitForSingleObjectEx(start_event, INFINITE, TRUE);
+
+                if (result == WAIT_OBJECT_0)
+                        StartForReal();
         }
 }
 

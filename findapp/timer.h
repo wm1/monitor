@@ -4,7 +4,7 @@ class Timer
 public:
         typedef void(type_TimerCallback)(PVOID);
         Timer(HWND, int seconds, type_TimerCallback*, PVOID);
-        void PowerEvent(POWERBROADCAST_SETTING*);
+        void        PowerEvent(POWERBROADCAST_SETTING*);
         static void OutputTimeStamp();
 
 private:
@@ -14,10 +14,12 @@ private:
         PVOID               context;
         HANDLE              timer_handle;
         bool                running;
+        HANDLE              start_event;
 
         static void CALLBACK ApcRoutine(PVOID lpArg, DWORD, DWORD);
         static void __cdecl TimerThread(PVOID);
         void TimerThread();
+        void StartForReal();
         void Start();
         void Stop();
 };

@@ -44,10 +44,10 @@ int CALLBACK WinMain(
                 return 1;
 
         HWND hwnd = CreateWindow(wc.lpszClassName,
-                        L"Monitor",
-                        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                        NULL, NULL, hInstance, NULL);
+                                 L"Monitor",
+                                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                                 CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                                 NULL, NULL, hInstance, NULL);
         if (!hwnd)
                 return 1;
 
