@@ -4,6 +4,7 @@ Logger::Logger(int _interval_in_seconds)
 {
         interval_in_seconds      = _interval_in_seconds;
         max_entries_before_flush = FLUSH_INTERVAL_IN_MINUTES * 60 / interval_in_seconds;
+        count                    = 0;
 
         SYSTEMTIME now;
         GetLocalTime(&now);
@@ -36,6 +37,10 @@ void Logger::AddEntry(PCWSTR window_title, PCWSTR command_line)
         SYSTEMTIME now;
         GetLocalTime(&now);
 
+        count++;
+        if (count >= max_entries_before_flush)
+                Flush();
+
         if (last_entry.window_title == window_title && last_entry.command_line == command_line)
         {
                 last_entry.duration_in_seconds += interval_in_seconds;
@@ -48,9 +53,6 @@ void Logger::AddEntry(PCWSTR window_title, PCWSTR command_line)
         last_entry.duration_in_seconds = interval_in_seconds;
         last_entry.window_title        = window_title;
         last_entry.command_line        = command_line;
-
-        if (entries.size() >= max_entries_before_flush)
-                Flush();
 }
 
 void Logger::Flush()
@@ -71,4 +73,8 @@ void Logger::Flush()
         }
 
         entries.clear();
+        fflush(file);
+
+        last_entry.duration_in_seconds = 0;
+        count                          = 0;
 }

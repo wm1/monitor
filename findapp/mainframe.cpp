@@ -48,9 +48,9 @@ int CALLBACK WinMain(
 
         // for debugging output
         //
-        FILE* ignored;
-        AllocConsole();
-        freopen_s(&ignored, "CON", "w", stdout);
+        // FILE* ignored;
+        // AllocConsole();
+        // freopen_s(&ignored, "CON", "w", stdout);
 
         FindApp find(hwnd);
 

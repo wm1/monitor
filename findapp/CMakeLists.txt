@@ -13,6 +13,7 @@ add_executable(
     ${TARGET}
     WIN32
     ${SOURCES}
+    version.rc
     )
 
 target_link_libraries(${TARGET} kernel32)

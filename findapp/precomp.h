@@ -12,3 +12,6 @@
 #include "win32helper.h"
 #include "logger.h"
 #include "findapp.h"
+
+const int CHECK_INTERNVAL_IN_SECONDS = 10;
+const int FLUSH_INTERVAL_IN_MINUTES  = 15;

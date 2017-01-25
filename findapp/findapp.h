@@ -2,7 +2,6 @@ class FindApp
 {
 public:
         FindApp(HWND);
-        const int CHECK_INTERNVAL_IN_SECONDS = 5;
 
 private:
         Win32Helper helper;
