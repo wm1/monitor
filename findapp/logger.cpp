@@ -14,13 +14,25 @@ Logger::Logger(int _interval_in_seconds)
         last_entry.window_title        = L"";
         last_entry.command_line        = L"";
 
+        file = NULL;
+        WCHAR buffer[MAX_PATH];
+        if (GetEnvironmentVariable(L"LOCALAPPDATA", buffer, MAX_PATH) == 0)
+        {
+                printf("GetEnvironmentVariable failed with 0x%x\n", GetLastError());
+                return;
+        }
+        std::wstring log_file_name = buffer;
+        log_file_name += L"\\findapp-monitor.log";
+
         // open file for:
         //   a - appending
         //   t - text mode. LF characters are translated to CR-LF combinations on output
         //   S - optimized for, but not restricted to, sequential access from disk.
         //   _SH_DENYWR	- Denies write access to the file.
         //
-        file = _fsopen("monitor.log", "atS", _SH_DENYWR);
+        file = _wfsopen(log_file_name.c_str(), L"atS", _SH_DENYWR);
+        if (file == NULL)
+                printf("Open %S failed with 0x%x\n", log_file_name.c_str(), GetLastError());
 }
 
 Logger::~Logger()
