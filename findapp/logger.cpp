@@ -65,10 +65,11 @@ void Logger::Flush()
         {
                 Entry&      data = (*p);
                 SYSTEMTIME& now  = data.timestamp;
-                fprintf(file, "%02d:%02d:%02d,%d,%S", now.wHour, now.wMinute, now.wSecond,
+                fprintf(file, "%04d-%02d-%02d %02d:%02d:%02d, %4d, %S",
+                        now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond,
                         data.duration_in_seconds,
-                        data.window_title.c_str());
-                fprintf(file, ",%S", data.command_line.c_str()); // unicode output is not working 100%. move endline out so that it wont get eaten
+                        data.command_line.c_str());
+                fprintf(file, ", %S", data.window_title.c_str()); // unicode output is not working 100%. move endline out so that it wont get eaten
                 fprintf(file, "\n");
         }
 
