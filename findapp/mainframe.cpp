@@ -28,6 +28,10 @@ int CALLBACK WinMain(
         _In_           LPSTR /*lpCmdLine*/,
         _In_ int /*nCmdShow*/)
 {
+        HANDLE mutex = CreateMutex(NULL, FALSE, L"Local\\{AB2F0A5E-FAA2-4664-B3C2-25D3984F0A20}");
+        if (mutex == NULL || GetLastError() == ERROR_ALREADY_EXISTS)
+                return 1;
+
         WNDCLASS wc      = {0};
         wc.lpfnWndProc   = WndProc;
         wc.hInstance     = hInstance;
