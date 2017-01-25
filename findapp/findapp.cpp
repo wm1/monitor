@@ -1,7 +1,7 @@
 #include "precomp.h"
 
 FindApp::FindApp(HWND hwnd)
-        : timer(hwnd, 5, TimerCallback, this)
+        : logger(CHECK_INTERNVAL_IN_SECONDS), timer(hwnd, CHECK_INTERNVAL_IN_SECONDS, TimerCallback, this)
 {
 }
 
@@ -13,6 +13,9 @@ void FindApp::TimerCallback(PVOID context)
 
 void FindApp::TimerCallback()
 {
+        window_title[0] = L'\0';
+        command_line[0] = L'\0';
+
         timer.OutputTimeStamp();
 
         DWORD process_id = GetForegroundWindowProcessId();
@@ -22,6 +25,8 @@ void FindApp::TimerCallback()
         bool result = GetProcessCommandLine(process_id);
         if (result)
                 printf("CmdLine: %S\n", command_line);
+
+        logger.AddEntry(window_title, command_line);
 }
 
 DWORD FindApp::GetForegroundWindowProcessId()
@@ -53,8 +58,7 @@ DWORD FindApp::GetForegroundWindowProcessId()
         if (window_handle == NULL)
                 return 0;
 
-        window_title[0] = L'\0';
-        int result      = GetWindowText(window_handle, window_title, sizeof(window_title) / sizeof(window_title[0]));
+        int result = GetWindowText(window_handle, window_title, sizeof(window_title) / sizeof(window_title[0]));
         if (result != 0)
         {
                 printf("Title:   %S", window_title);

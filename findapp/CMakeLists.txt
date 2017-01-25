@@ -4,6 +4,7 @@ add_definitions(-DPROJ=${TARGET})
 
 set(SOURCES
     findapp.cpp
+    logger.cpp
     mainframe.cpp
     timer.cpp
     win32helper.cpp)

@@ -2,13 +2,15 @@ class FindApp
 {
 public:
         FindApp(HWND);
+        const int CHECK_INTERNVAL_IN_SECONDS = 5;
 
 private:
         Win32Helper helper;
-        DWORD       GetForegroundWindowProcessId();
-        bool        GetProcessCommandLine(DWORD process_id);
-
+        Logger      logger;
         Timer       timer;
+
+        DWORD GetForegroundWindowProcessId();
+        bool GetProcessCommandLine(DWORD process_id);
         void        TimerCallback();
         static void TimerCallback(PVOID);
 
