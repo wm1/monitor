@@ -8,10 +8,10 @@ private:
         Logger      logger;
         Timer       timer;
 
-        DWORD GetForegroundWindowProcessId();
-        bool GetProcessCommandLine(DWORD process_id);
-        void        TimerCallback();
-        static void TimerCallback(PVOID);
+        void          TimerCallback();
+        static void   TimerCallback(PVOID);
+        bool          GetForegroundApp();
+        static HANDLE OpenProcess(DWORD process_id);
 
         WCHAR window_title[MAX_PATH];
         WCHAR command_line[MAX_PATH];

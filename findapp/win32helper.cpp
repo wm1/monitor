@@ -163,3 +163,49 @@ bool Win32Helper::GetProcessCommandLine(HANDLE process_handle, _Out_ PWSTR comma
 
         return true;
 }
+
+bool Win32Helper::GetUniversalApp(
+        _Inout_ HWND* window_handle,
+        _Inout_ DWORD* process_id)
+{
+        /*
+        http://stackoverflow.com/questions/32360149/name-of-process-for-active-window-in-windows-8-10
+
+        The current window/process is ApplicationFrameHost.exe;
+        One of its child window has a different process id, and that is the real universal app.
+        */
+
+        EnumUniversaApplParameter parameter;
+        parameter.window_handle = *window_handle;
+        parameter.process_id    = *process_id;
+        parameter.child_window  = NULL;
+        parameter.child_process = NULL;
+
+        EnumChildWindows(parameter.window_handle, EnumUniversalAppCallback, (LPARAM)&parameter);
+
+        if (parameter.child_window == NULL)
+        {
+                printf("Error trying to find the universal app\n");
+                return false;
+        }
+
+        *window_handle = parameter.child_window;
+        *process_id    = parameter.child_process;
+        return true;
+}
+
+BOOL CALLBACK Win32Helper::EnumUniversalAppCallback(HWND child_window, LPARAM lparam)
+{
+        EnumUniversaApplParameter* parameter = (EnumUniversaApplParameter*)lparam;
+        DWORD                      child_process;
+        if (GetWindowThreadProcessId(child_window, &child_process) == 0)
+                return FALSE;
+
+        if (child_process != parameter->process_id)
+        {
+                parameter->child_window  = child_window;
+                parameter->child_process = child_process;
+                return FALSE;
+        }
+        return TRUE;
+}
