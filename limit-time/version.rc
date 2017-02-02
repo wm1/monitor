@@ -1,0 +1,12 @@
+#include <windows.h>
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_APP
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "Limit when kids can run games"
+#define VER_INTERNALNAME_STR        "limit-time.exe"
+#define VER_FILEVERSION_STR         "1.0.0.0"
+#define VER_FILEVERSION             1,0,0,0
+#define VER_LEGALCOPYRIGHT_STR      "Copyright (C) 2017 Wei Mao"
+
+#include <common.ver>

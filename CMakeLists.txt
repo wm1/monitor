@@ -7,3 +7,4 @@ add_definitions(-DUNICODE)
 add_definitions(-D_UNICODE)
 
 add_subdirectory(findapp)
+add_subdirectory(limit-time)
