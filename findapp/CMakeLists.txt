@@ -1,4 +1,4 @@
-set(TARGET findapp)
+set(TARGET record-usage)
 
 add_definitions(-DPROJ=${TARGET})
 
