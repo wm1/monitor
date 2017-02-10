@@ -22,7 +22,7 @@ Logger::Logger(int _interval_in_seconds)
                 return;
         }
         std::wstring log_file_name = buffer;
-        log_file_name += L"\\findapp-monitor.log";
+        log_file_name += L"\\record-usage.csv";
 
         // open file for:
         //   a - appending
